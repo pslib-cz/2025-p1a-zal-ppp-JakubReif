@@ -1,24 +1,30 @@
+## 01 Zobrazení sekund
+Použití **LED pásku o velikosti 60 diod** na zobrazení sekund.
 
-> Open this page at [https://pslib-cz.github.io/2025-p1a-zal-ppp-jakubreif/](https://pslib-cz.github.io/2025-p1a-zal-ppp-jakubreif/)
+## 02 Zobrazení minut
+Použití **ručičky a motoru** k zobrazení minut.
 
-## Use as Extension
+## 03 Zobrazení hodin
+Použití **24 LEDek** k zobrazení hodin.
 
-This repository can be added as an **extension** in MakeCode.
+## 04 Volba režimu
+Systém má **4 režimy**:
 
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **New Project**
-* click on **Extensions** under the gearwheel menu
-* search for **https://github.com/pslib-cz/2025-p1a-zal-ppp-jakubreif** and import
+1. **Normální** – normálně ukazuje čas.
+2. **Hodiny** – nastavuje hodiny.
+3. **Minuty** – nastavuje minuty.
+4. **Sekundy** – nastavuje sekundy.
 
-## Edit this project
+Měnění režimu probíhá pomocí **1. dotykového senzoru**.
 
-To edit this repository in MakeCode.
+## 05 Měnění hodnot
+Využití **2. a 3. dotykového senzoru** k přičítání a odečítání nastavované hodnoty.
 
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/pslib-cz/2025-p1a-zal-ppp-jakubreif** and click import
+## 06 Potvrzení
+Použití **4. dotykového senzoru** k potvrzení hodnoty.
 
-#### Metadata (used for search, rendering)
+## 07 Čas
+Zobrazovaný čas nebude záviset na Micro:bitu, ale na **modulu reálného času**. Tedy bude přesnější a nepotřebuje napájení k udržení času.
 
-* for PXT/microbit
-<script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
+## 08 Kalibrace
+Po zapnutí **zkalibruje ručičku** pomocí IR senzoru.
