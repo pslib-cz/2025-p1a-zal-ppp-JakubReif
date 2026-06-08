@@ -6,105 +6,78 @@ const motorPin2: DigitalPin = DigitalPin.P13
 const motorPin3: DigitalPin = DigitalPin.P14
 const motorPin4: DigitalPin = DigitalPin.P15
 
-DS3231.dateTime(2026, 5, 27, 3, 18, 46, 0)
+const touchPin1: DigitalPin = DigitalPin.P0
+const touchPin2: DigitalPin = DigitalPin.P1
+const touchPin3: DigitalPin = DigitalPin.P16
+const touchPin4: DigitalPin = DigitalPin.P11 
 
-const stepDelay: number = 5
-const clockDelay: number = 500
-const stepsPerRotation: number = 64
-const minuteStep: number = Math.floor(stepsPerRotation / 60)
-const minuteCompensationSteps: number = stepsPerRotation % 64
+// DS3231.dateTime(2026, 5, 27, 3, 18, 58, 40)
 
-type ring = {
-    strip: neopixel.Strip
-    color: number
-    nowTime: number
+enum State {
+    startUp = 0,
+    clock = 1,
+    hour = 2,
+    minute = 3,
+    second = 4
 }
+let state: State = State.startUp
 
-const hourRing: ring = {
-    strip: neopixel.create(hourPin, 24, NeoPixelMode.RGB),
-    color: neopixel.rgb(0, 128, 0),
-    nowTime: DS3231.hour()
-}
-hourRing.strip.setBrightness(10)
+let secondRing: Ring = new Ring(DS3231.second, secondPin, 60, neopixel.rgb(255, 0, 0), 26)
+let hourRing: Ring = new Ring(DS3231.hour, hourPin, 24, neopixel.rgb(0, 255, 0), 0)
+let motor: Motor = new Motor(DS3231.minute, [motorPin1, motorPin2, motorPin3, motorPin4], 2048)
 
-const secondRing: ring = {
-    strip: neopixel.create(secondPin, 60, NeoPixelMode.RGB),
-    color: neopixel.rgb(128, 0, 0),
-    nowTime: DS3231.second()
-}
-secondRing.strip.setBrightness(15)
-
-function updateTime(ring: ring, time: number) {
-    ring.nowTime = time
-    ring.strip.clear()
-    ring.strip.setPixelColor(time, ring.color)
-    ring.strip.show()
-}
-
-function makeTinyStep() {
-    pins.digitalWritePin(motorPin1, 1)
-    pins.digitalWritePin(motorPin2, 0)
-    pins.digitalWritePin(motorPin3, 1)
-    pins.digitalWritePin(motorPin4, 0)
-    basic.pause(stepDelay)
-
-    pins.digitalWritePin(motorPin1, 0)
-    pins.digitalWritePin(motorPin2, 1)
-    pins.digitalWritePin(motorPin3, 1)
-    pins.digitalWritePin(motorPin4, 0)
-    basic.pause(stepDelay)
-
-    pins.digitalWritePin(motorPin1, 0)
-    pins.digitalWritePin(motorPin2, 1)
-    pins.digitalWritePin(motorPin3, 0)
-    pins.digitalWritePin(motorPin4, 1)
-    basic.pause(stepDelay)
-
-    pins.digitalWritePin(motorPin1, 1)
-    pins.digitalWritePin(motorPin2, 0)
-    pins.digitalWritePin(motorPin3, 0)
-    pins.digitalWritePin(motorPin4, 1)
-    basic.pause(stepDelay)
-}
-
-function makeSteps(steps: number) {
-    for (let i: number = 0; i < steps; i += 1) {
-        makeTinyStep()
-    }
-}
-
-let nowMinute: number = DS3231.minute()
-function rotate(minute: number) {
-    let steps: number = minute - nowMinute
-    if (steps < 0) {
-        steps += 60
-        makeSteps(minuteCompensationSteps)
-    }
-    makeSteps(steps * minuteStep)
-}
-
-updateTime(hourRing, DS3231.hour())
-
-let second: number
-let hour: number
-let minute: number
 function main() {
-    basic.pause(clockDelay)
-    second = DS3231.second()
-    hour = DS3231.hour()
-    minute = DS3231.minute()
-
-    if (secondRing.nowTime != second) {
-        updateTime(secondRing, second)
+    if (state === State.startUp) {
+        if (input.buttonIsPressed(Button.B)) {
+            motor.nowTime = motor.getTime()
+            motor.oldTime = 0
+            motor.updateTime(-1)
+            state = State.clock
+        } else {
+            motor.makeStep()
+        }
     }
 
-    if (hourRing.nowTime != hour) {
-        updateTime(hourRing, hour)
+    else if (state === State.clock) {
+        secondRing.checkTime()
+        hourRing.checkTime()
+        motor.checkTime()
+        basic.pause(100)
+    } else {
+        if (pins.digitalReadPin(touchPin4)) {
+            DS3231.dateTime(2026, 5, 27, 3, hourRing.nowTime, motor.nowTime, secondRing.nowTime)
+            state = State.clock
+        }
     }
 
-    if (nowMinute != minute) {
-        rotate(minute)
+    if (state === State.hour) {
+        hourRing.changeTime()
+        for (hourRing.timer; hourRing.timer >= 0; hourRing.timer -= 1) basic.pause(10)
+    }
+
+    else if (state === State.minute) {
+        motor.changeTime()
+        for (motor.timer; motor.timer >= 0; motor.timer -= 1) basic.pause(10)
+    }
+
+    else if (state === State.second) {
+        secondRing.changeTime()
+        for (secondRing.timer; secondRing.timer >= 0; secondRing.timer -= 1) basic.pause(10)
+    }
+
+    if (pins.digitalReadPin(touchPin1)) {
+        state += 1
+        if (state > 4) state = State.hour
+        basic.pause(500)
     }
 }
 
+function test() {
+    hourRing.nowTime = 0
+    secondRing.nowTime = 0
+    hourRing.updateTime(-1)
+    secondRing.updateTime(-1)
+}
+
+// test()
 basic.forever(main)
