@@ -51,13 +51,16 @@ class Ring extends Time {
 
     updateTime(time: number = -1) {
         // this.nowTime = this.getTime()
-        let pixel: number = this.nowTime + this.offset
-        if (pixel >= this.maxTime) pixel -= this.maxTime
+        let pixel: number = this.nowTime
         if (this.maxTime === 24) {
             if (pixel >= 12) {
-                pixel -= 12
-            } else { pixel = pixel * 2 + 1}
+                pixel = (pixel - 12) * 2 + 1
+            } else {
+                pixel *= 2
+            }
         }
+        pixel += this.offset
+        if (pixel >= this.maxTime) pixel -= this.maxTime
         this.strip.clear()
         this.strip.setPixelColor(pixel, this.color)
         this.strip.show()
