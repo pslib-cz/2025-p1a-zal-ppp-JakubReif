@@ -9,9 +9,9 @@ const motorPin4: DigitalPin = DigitalPin.P15
 const touchPin1: DigitalPin = DigitalPin.P0
 const touchPin2: DigitalPin = DigitalPin.P1
 const touchPin3: DigitalPin = DigitalPin.P16
-const touchPin4: DigitalPin = DigitalPin.P11 
+const touchPin4: DigitalPin = DigitalPin.P2 
 
-// DS3231.dateTime(2026, 5, 27, 3, 18, 58, 40)
+// DS3231.dateTime(2026, 5, 27, 3, 19, 26, 30)
 
 enum State {
     startUp = 0,
@@ -22,8 +22,8 @@ enum State {
 }
 let state: State = State.startUp
 
-let secondRing: Ring = new Ring(DS3231.second, secondPin, 60, neopixel.rgb(255, 0, 0), 26)
-let hourRing: Ring = new Ring(DS3231.hour, hourPin, 24, neopixel.rgb(0, 255, 0), 0)
+let secondRing: Ring = new Ring(DS3231.second, secondPin, 60, neopixel.rgb(255, 0, 0), 27)
+let hourRing: Ring = new Ring(DS3231.hour, hourPin, 24, neopixel.rgb(0, 255, 0), 7)
 let motor: Motor = new Motor(DS3231.minute, [motorPin1, motorPin2, motorPin3, motorPin4], 2048)
 
 function main() {
